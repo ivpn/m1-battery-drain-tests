@@ -3,6 +3,7 @@
 cd "$(dirname "$0")"
 
 _LOGFILE="download.log"
+_LOGFILE_ERR="download_error.log"
 _LINKS=(
 "https://fedora.astra.in.ua//releases/34/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-34-1.2.iso"
 "https://releases.ubuntu.com/20.04.3/ubuntu-20.04.3-desktop-amd64.iso"
@@ -13,6 +14,7 @@ _TMPFILE="test.tmp"
 
 rm ${_TMPFILE}
 rm ${_LOGFILE}
+rm ${_LOGFILE_ERR}
 
 _TOTALBYTES=0
 _STARTTIMESEC="$( date +%s )"
@@ -26,8 +28,15 @@ do
 
      _FILE_DOWNLOAD_STARTTIMESEC="$( date +%s )"
 
-     curl ${_FILETODOWNLOAD} --output ${_TMPFILE}
      _DATE="$( date "+%d/%m/%y %H:%M:%S" )"
+     curl ${_FILETODOWNLOAD} --output ${_TMPFILE}
+     if ! [ $? -eq 0 ]; then
+       echo ${_DATE} : ${_FILETODOWNLOAD} >> ${_LOGFILE_ERR}
+       echo "<<< ERROR! Pause 3 seconds >>>"
+       sleep 3
+       continue
+     fi
+
      _BYTES="$( stat -f%z ${_TMPFILE} )"
      _TIMESEC="$( date +%s )"
 
